@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temperature Converter</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .background-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+
+    .main {
+      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+      font-size: 100px; /* Updated font-size */
+      text-align: center;
+      height: 0;
+      position: relative;
+      z-index: -1;
+      opacity: 1; /* Added opacity property */
+      transition: opacity 0.5s ease-in-out; /* Use opacity for transition */
+      color: #5d7a38;
+    }
+
+    .main.hidden {
+      opacity: 0; /* Set opacity to 0 when hidden */
+      height: 0; /* Ensure no space is taken when hidden */
+    }
+
+    .converter-container {
+      position: relative;
+      z-index: 1;
+      max-width: 400px;
+      margin: auto;
+      background-color: rgba(118, 147, 76, 0.789); /* Background with some transparency */
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 31, 9, 0.1);
+      transition: box-shadow 0.3s ease-in-out;
+      top: 55px;
+    }
+
+    .converter-container:hover {
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+    }
+
+    label {
+      font-weight: 800;
+      display: block;
+      margin-bottom: 10px;
+      color: #16501d;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    input, select, button {
+      font-weight: bolder;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      border: 1px solid #145A32;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+      transition: border-color 0.3s, background-color 0.3s;
+    }
+
+    input:focus, select:focus {
+      border-color: #4caf50;
+      background-color: #22a73f;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: #145A32;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .result {
+      font-size: 25px;
+      font-weight: bold;
+      margin-top: 15px;
+      color: #A9DFBF;
+      background-color: #145A32;
+    }
+
+    video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+  </style>
+</head>
+<body>
+  <video class="background-video" autoplay loop muted>
+    <source src="dyno.mp4" type="video/mp4">
+  </video>
+
+  <div class="main">
+    <h1>TEMPERATURE CONVERTER</h1>
+  </div>
+
+  <div class="converter-container">
+    <label for="temperature">Temperature:</label>
+    <input type="number" id="temperature" placeholder="Enter temperature" required>
+
+    <label for="unit">Select unit:</label>
+    <select id="unit">
+      <option value="celsius">Celsius</option>
+      <option value="fahrenheit">Fahrenheit</option>
+      <option value="kelvin">Kelvin</option>
+    </select>
+
+    <button onclick="convertTemperature()">Convert</button>
+
+    <div class="result" id="result"></div>
+
+    <video id="coldVideo" autoplay loop style="display: none;">
+      <source src="1.mp4" type="video/mp4">
+    </video>
+
+    <video id="normalVideo" autoplay loop style="display: none;">
+      <source src="2.mp4" type="video/mp4">
+    </video>
+
+    <video id="hotVideo" autoplay loop style="display: none;">
+      <source src="3.mp4" type="video/mp4">
+    </video>
+
+    <script>
+      function convertTemperature() {
+        const temperatureInput = parseFloat(document.getElementById('temperature').value);
+        const unitSelect = document.getElementById('unit');
+        const selectedUnit = unitSelect.options[unitSelect.selectedIndex].value;
+        let convertedTemperature;
+        let resultUnit;
+
+        if (selectedUnit === 'celsius') {
+          convertedTemperature = (temperatureInput * 9/5) + 32;
+          resultUnit = 'Fahrenheit';
+        } else if (selectedUnit === 'fahrenheit') {
+          convertedTemperature = (temperatureInput - 32) * 5/9;
+          resultUnit = 'Celsius';
+        } else {
+          convertedTemperature = temperatureInput - 273.15;
+          resultUnit = 'Celsius';  // Corrected unit for Kelvin
+        }
+
+        document.getElementById('result').textContent = `Converted Temperature: ${convertedTemperature.toFixed(2)} ${resultUnit}`;
+
+        showVideoBasedOnTemperature(convertedTemperature);
+      }
+
+      function showVideoBasedOnTemperature(temperature) {
+        const coldVideo = document.getElementById('coldVideo');
+        const normalVideo = document.getElementById('normalVideo');
+        const hotVideo = document.getElementById('hotVideo');
+        const backgroundVideo = document.querySelector('.background-video');
+        const h1Element = document.querySelector('.main h1');
+
+        // Hide all videos initially
+        coldVideo.style.display = 'none';
+        normalVideo.style.display = 'none';
+        hotVideo.style.display = 'none';
+
+        // Show or hide the background video based on the temperature
+        if (temperature >= 0 && temperature <= 25) {
+          backgroundVideo.style.display = 'none';
+          h1Element.classList.add('hidden'); // Hide the h1 element
+        } else {
+          backgroundVideo.style.display = 'block';
+          h1Element.classList.remove('hidden'); // Show the h1 element
+        }
+
+        // Play or pause the background video based on the temperature
+        if (backgroundVideo.style.display === 'block') {
+          backgroundVideo.play();
+        } else {
+          backgroundVideo.pause();
+        }
+
+        if (temperature < 0) {
+          coldVideo.style.display = 'block';
+        } else if (temperature <= 25) {
+          normalVideo.style.display = 'block';
+        } else {
+          hotVideo.style.display = 'block';
+        }
+
+        // Play the selected video
+        coldVideo.play();
+        normalVideo.play();
+        hotVideo.play();
+      }
+    </script>
+  </div>
+</body>
+</html>
